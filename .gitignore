@@ -1,2 +1,3 @@
 *.pyc
 *.joblib
+.DS_Store
