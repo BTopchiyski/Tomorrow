@@ -4,6 +4,7 @@ import os
 import joblib
 import xgboost as xgb
 
+from sklearn.svm import SVR
 from sklearn.linear_model import Lasso, ElasticNet, Ridge, SGDRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
@@ -11,6 +12,17 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.multioutput import MultiOutputRegressor
 
 from tomorrow.script.ml import MODEL_DIR
+
+def train_svr(x_train, y_train):
+    """Train a Support Vector Regressor model."""
+    print("Training Support Vector Regressor...")
+    svr = SVR()
+    multi_output_svr = MultiOutputRegressor(svr)
+    multi_output_svr.fit(x_train, y_train)
+    model_path = os.path.join(MODEL_DIR, "svr_model.joblib")
+    joblib.dump(multi_output_svr, model_path)
+    print(f"Support Vector Regressor model saved to {model_path}")
+    return multi_output_svr
 
 def train_gbr(x_train, y_train):
     """Train a Gradient Boosting Regressor model."""

@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 from tomorrow.script.ml.preprocessing import load_data, split_data, scale_data
-from tomorrow.script.ml.train import train_gbr, train_xgboost
+from tomorrow.script.ml.train import train_svr
 from tomorrow.script.ml.evaluate import evaluate_model
 from tomorrow.script.ml.predict import load_model, load_scalers, predict, predict_without_scaling
 
@@ -18,12 +18,10 @@ def main():
     )
 
     # Step 2: Train models
-    gbr_model = train_gbr(x_train_scaled, y_train_scaled)
-    xgboost_model = train_xgboost(x_train_scaled, y_train_scaled)
+    svr_model = train_svr(x_train_scaled, y_train_scaled)
 
     # Step 3: Evaluate models
-    print("Gradient Boosting Regressor Score:", evaluate_model(gbr_model, x_test_scaled, y_test_scaled))
-    print("XGBoost Regressor Score:", evaluate_model(xgboost_model, x_test_scaled, y_test_scaled))
+    print("Support Vector Regressor Score:", evaluate_model(svr_model, x_test_scaled, y_test_scaled))
 
     # Step 4: Prediction example
     # Actual data: NO, NO2, AirTemp, Press, UMR, O3, RM10
@@ -37,28 +35,23 @@ def main():
         os.path.join(SCALER_DIR, "scaler_y.joblib")
     )
 
-    # Load Gradient Boosting Regressor model
-    gbr_model_loaded = load_model(os.path.join(MODEL_DIR, "gbr_model.joblib"))
-    gbr_prediction = predict(gbr_model_loaded, scaler_x, scaler_y, input_data)
+    # Load Support Vector Regressor model
+    svr_model_loaded = load_model(os.path.join(MODEL_DIR, "svr_model.joblib"))
+    svr_prediction = predict(svr_model_loaded, scaler_x, scaler_y, input_data)
 
-    # Load XGBoost model
-    xgboost_model_loaded = load_model(os.path.join(MODEL_DIR, "xgboost_model.joblib"))
-    xgboost_prediction = predict(xgboost_model_loaded, scaler_x, scaler_y, input_data)
-
-    # Gradient Boosting Regressor Predictions
-    print("Gradient Boosting Regressor Predictions:")
-    print(f"Predicted NO: {gbr_prediction[0][0]:.2f}, Error: {abs(gbr_prediction[0][0] - actual_values[0]):.2f}")
-    print(f"Predicted NO2: {gbr_prediction[0][1]:.2f}, Error: {abs(gbr_prediction[0][1] - actual_values[1]):.2f}")
-    print(f"Predicted O3: {gbr_prediction[0][2]:.2f}, Error: {abs(gbr_prediction[0][2] - actual_values[2]):.2f}")
-    print(f"Predicted RM10: {gbr_prediction[0][3]:.2f}, Error: {abs(gbr_prediction[0][3] - actual_values[3]):.2f}")
+    # Display the results
+    print("\nPredictions Comparison:")
+    print("======================================")
+    print("Actual Values:")
+    print(f"NO: {actual_values[0]:.2f}, NO2: {actual_values[1]:.2f}, O3: {actual_values[2]:.2f}, RM10: {actual_values[3]:.2f}")
     print("======================================")
 
-    # XGBoost Predictions
-    print("XGBoost Predictions:")
-    print(f"Predicted NO: {xgboost_prediction[0][0]:.2f}, Error: {abs(xgboost_prediction[0][0] - actual_values[0]):.2f}")
-    print(f"Predicted NO2: {xgboost_prediction[0][1]:.2f}, Error: {abs(xgboost_prediction[0][1] - actual_values[1]):.2f}")
-    print(f"Predicted O3: {xgboost_prediction[0][2]:.2f}, Error: {abs(xgboost_prediction[0][2] - actual_values[2]):.2f}")
-    print(f"Predicted RM10: {xgboost_prediction[0][3]:.2f}, Error: {abs(xgboost_prediction[0][3] - actual_values[3]):.2f}")
+    # Support Vector Regressor Predictions
+    print("Support Vector Regressor Predictions:")
+    print(f"Predicted NO: {svr_prediction[0][0]:.2f}, Error: {abs(svr_prediction[0][0] - actual_values[0]):.2f}")
+    print(f"Predicted NO2: {svr_prediction[0][1]:.2f}, Error: {abs(svr_prediction[0][1] - actual_values[1]):.2f}")
+    print(f"Predicted O3: {svr_prediction[0][2]:.2f}, Error: {abs(svr_prediction[0][2] - actual_values[2]):.2f}")
+    print(f"Predicted RM10: {svr_prediction[0][3]:.2f}, Error: {abs(svr_prediction[0][3] - actual_values[3]):.2f}")
     print("======================================")
 
 if __name__ == "__main__":
