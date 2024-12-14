@@ -2,14 +2,37 @@
 
 import os
 import joblib
+import xgboost as xgb
 
 from sklearn.linear_model import Lasso, ElasticNet, Ridge, SGDRegressor
 from sklearn.neural_network import MLPRegressor
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.multioutput import MultiOutputRegressor
 
 from tomorrow.script.ml import MODEL_DIR
+
+def train_gbr(x_train, y_train):
+    """Train a Gradient Boosting Regressor model."""
+    print("Training Gradient Boosting Regressor...")
+    gbr = GradientBoostingRegressor()
+    multi_output_gbr = MultiOutputRegressor(gbr)
+    multi_output_gbr.fit(x_train, y_train)
+    model_path = os.path.join(MODEL_DIR, "gbr_model.joblib")
+    joblib.dump(multi_output_gbr, model_path)
+    print(f"Gradient Boosting Regressor model saved to {model_path}")
+    return multi_output_gbr
+
+def train_xgboost(x_train, y_train):
+    """Train an XGBoost Regressor model."""
+    print("Training XGBoost Regressor...")
+    xgboost = xgb.XGBRegressor()
+    multi_output_xgboost = MultiOutputRegressor(xgboost)
+    multi_output_xgboost.fit(x_train, y_train)
+    model_path = os.path.join(MODEL_DIR, "xgboost_model.joblib")
+    joblib.dump(multi_output_xgboost, model_path)
+    print(f"XGBoost Regressor model saved to {model_path}")
+    return multi_output_xgboost
 
 def train_lasso(x_train, y_train):
     """Train a Lasso regression model."""
