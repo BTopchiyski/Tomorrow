@@ -1,3 +1,7 @@
 *.pyc
 *.joblib
 .DS_Store
+*.pth
+*.keras
+
+new_env

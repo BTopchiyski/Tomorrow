@@ -1,8 +1,12 @@
 """Handles model training and saving."""
 
 import os
+import torch
 import joblib
+import torch.nn as nn
+import torch.optim as optim
 import xgboost as xgb
+import tensorflow as tf
 
 from sklearn.svm import SVR
 from sklearn.linear_model import Lasso, ElasticNet, Ridge, SGDRegressor
@@ -11,7 +15,69 @@ from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.multioutput import MultiOutputRegressor
 
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from torch.utils.data import DataLoader, TensorDataset
+
 from tomorrow.script.ml import MODEL_DIR
+
+def train_keras_nn(x_train, y_train):
+    """Train a Neural Network using Keras."""
+    print("Training Keras Neural Network...")
+    model = Sequential()
+    model.add(Dense(64, input_dim=x_train.shape[1], activation='relu'))
+    model.add(Dense(64, activation='relu'))
+    model.add(Dense(y_train.shape[1]))
+
+    model.compile(optimizer='adam', loss='mse')
+    model.fit(x_train, y_train, epochs=100, batch_size=32, verbose=1)
+
+    model_path = os.path.join(MODEL_DIR, "keras_nn_model.keras")
+    model.save(model_path)
+    print(f"Keras Neural Network model saved to {model_path}")
+    return model
+
+class PyTorchNN(nn.Module):
+    def __init__(self, input_dim, output_dim):
+        super(PyTorchNN, self).__init__()
+        self.fc1 = nn.Linear(input_dim, 64)
+        self.fc2 = nn.Linear(64, 64)
+        self.fc3 = nn.Linear(64, output_dim)
+
+    def forward(self, x):
+        x = torch.relu(self.fc1(x))
+        x = torch.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+def train_pytorch_nn(x_train, y_train):
+    """Train a Neural Network using PyTorch."""
+    print("Training PyTorch Neural Network...")
+    input_dim = x_train.shape[1]
+    output_dim = y_train.shape[1]
+
+    model = PyTorchNN(input_dim, output_dim)
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+    x_train_tensor = torch.tensor(x_train, dtype=torch.float32)
+    y_train_tensor = torch.tensor(y_train, dtype=torch.float32)
+    dataset = TensorDataset(x_train_tensor, y_train_tensor)
+    dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+
+    model.train()
+    for epoch in range(100):
+        for batch_x, batch_y in dataloader:
+            optimizer.zero_grad()
+            outputs = model(batch_x)
+            loss = criterion(outputs, batch_y)
+            loss.backward()
+            optimizer.step()
+
+    model_path = os.path.join(MODEL_DIR, "pytorch_nn_model.pth")
+    torch.save(model.state_dict(), model_path)
+    print(f"PyTorch Neural Network model saved to {model_path}")
+    return model
 
 def train_svr(x_train, y_train):
     """Train a Support Vector Regressor model."""
