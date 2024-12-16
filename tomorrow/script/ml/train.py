@@ -19,7 +19,26 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from torch.utils.data import DataLoader, TensorDataset
 
+from prophet import Prophet
+
 from tomorrow.script.ml import MODEL_DIR
+
+def train_prophet(data, target_column):
+    """Train a time series model using Facebook Prophet."""
+    print("Training Facebook Prophet model...")
+
+    # Prepare the data
+    df = data[['Date', target_column]].rename(columns={'Date': 'ds', target_column: 'y'})
+
+    # Initialize and train the model
+    model = Prophet()
+    model.fit(df)
+
+    # Save the model
+    model_path = os.path.join(MODEL_DIR, f"prophet_model_{target_column}.joblib")
+    joblib.dump(model, model_path)
+    print(f"Facebook Prophet model saved to {model_path}")
+    return model
 
 def train_keras_nn(x_train, y_train):
     """Train a Neural Network using Keras."""

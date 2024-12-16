@@ -9,9 +9,10 @@ from sklearn.preprocessing import RobustScaler
 
 from tomorrow.script.ml import SCALER_DIR
 
-def load_data(file_path):
-    """Load data from a CSV file."""
-    return pd.read_csv(file_path)
+def load_data(data_path):
+    """Load the dataset."""
+    data = pd.read_csv(data_path, parse_dates=['Date'], dayfirst=True)
+    return data
 
 def split_data(data, features, targets, test_size=0.3, random_state=0):
     """Split data into train and test sets."""

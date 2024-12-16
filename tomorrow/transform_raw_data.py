@@ -21,7 +21,7 @@ def main():
 
     # Step 3: Export the transformed data
     print("Exporting data...")
-    export_columns = ['NO', 'NO2', 'AirTemp', 'Press', 'UMR', 'O3', 'RM10']
+    export_columns = ['Date', 'NO', 'NO2', 'AirTemp', 'Press', 'UMR', 'O3', 'RM10']
     export_to_csv(transformed_data, OUTPUT_FILE, export_columns)
 
     print("Data transformation complete!")
